@@ -9,11 +9,13 @@ interface FiltersProps {
   rubros?: string[];
   etapaFilter?: string;
   setEtapaFilter?: (e: string) => void;
+  stageCounts?: Record<string, number>;
+  delayedCount?: number;
 }
 
 const ETAPAS = ['Todos Etapas', 'Nuevo contacto', 'Propuesta enviada', 'Demo', 'Lo piensa', 'Seguimiento largo', 'Ganado', 'Perdido'];
 
-export default function Filters({ filter, setFilter, rubroFilter, setRubroFilter, rubros, etapaFilter = 'Todos Etapas', setEtapaFilter }: FiltersProps) {
+export default function Filters({ filter, setFilter, rubroFilter, setRubroFilter, rubros, etapaFilter = 'Todos Etapas', setEtapaFilter, stageCounts, delayedCount }: FiltersProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
       
@@ -26,10 +28,10 @@ export default function Filters({ filter, setFilter, rubroFilter, setRubroFilter
           {['Todos', 'Hoy', 'Atrasados', 'Semana'].map((f) => (
             <div 
               key={f} 
-              className={`filter-chip ${filter === f ? 'active' : ''}`}
+              className={`filter-chip ${filter === f ? 'active' : ''} ${f === 'Atrasados' ? 'atrasado-chip' : ''}`}
               onClick={() => setFilter(f as any)}
             >
-              {f}
+              {f} {f === 'Atrasados' && delayedCount !== undefined && delayedCount > 0 && `(${delayedCount})`}
             </div>
           ))}
         </div>
@@ -46,9 +48,12 @@ export default function Filters({ filter, setFilter, rubroFilter, setRubroFilter
               key={e} 
               className={`filter-chip ${etapaFilter === e ? 'active' : ''}`}
               onClick={() => setEtapaFilter(e)}
-              style={etapaFilter === e ? { background: 'var(--primary)', color: 'white' } : {}}
+              style={{
+                fontWeight: '700', // Bold stages
+                ...(etapaFilter === e ? { background: 'var(--primary)', color: 'white' } : {})
+              }}
             >
-              {e.replace('Todos Etapas', 'Todas')}
+              {e.replace('Todos Etapas', 'Todas')} {stageCounts && stageCounts[e] !== undefined && stageCounts[e] > 0 && `(${stageCounts[e]})`}
             </div>
           ))}
         </div>

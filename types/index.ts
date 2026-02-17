@@ -13,6 +13,7 @@ export interface Cliente {
   id?: number;
   nombre: string;
   rubro: string;
+  telefono?: string;
   etapa: Etapa;
   fechaPrimerContacto: string; // ISO Date
   proximoSeguimiento: string; // ISO Date

@@ -61,6 +61,14 @@ export default function Home() {
 
   const alerts = getAlerts();
 
+  const stageCounts = ETAPAS_LIST.reduce((acc, etapa) => {
+    acc[etapa] = clientes?.filter(c => c.etapa === etapa).length || 0;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Special count for "Atrasados" priority
+  const delayedCount = alerts.delayed;
+
   return (
     <ClientOnly>
       <Header />
@@ -86,6 +94,8 @@ export default function Home() {
           rubros={rubros} 
           etapaFilter={etapaFilter}
           setEtapaFilter={setEtapaFilter}
+          stageCounts={stageCounts}
+          delayedCount={delayedCount}
         />
 
         <div className="client-grid" style={{ marginTop: '1rem' }}>
@@ -100,3 +110,6 @@ export default function Home() {
     </ClientOnly>
   );
 }
+
+const ETAPAS_LIST = ['Nuevo contacto', 'Propuesta enviada', 'Demo', 'Lo piensa', 'Seguimiento largo', 'Ganado', 'Perdido'];
+

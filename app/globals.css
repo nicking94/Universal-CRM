@@ -15,6 +15,23 @@
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --border-radius: 12px;
   --transition: all 0.3s ease;
+
+  /* Status Colors */
+  --won: #27ae60;
+  --lost: #e74c3c;
+  --delayed: #f39c12;
+}
+
+[data-theme="dark"] {
+  --primary: #3498db;
+  --secondary: #2980b9;
+  --tertiary: #5dade2;
+  --bg-light: #1a1a1a;
+  --text-light: #f0f0f0;
+  --text-dark: #ecf0f1;
+  --white: #2c2c2c;
+  --gray: #bdc3c7;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -31,6 +48,9 @@ body {
   font-family: "Roboto", sans-serif;
   background-color: var(--bg-light);
   color: var(--text-dark);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 a {
@@ -108,13 +128,13 @@ button {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
   }
-  
+
   .card {
-     /* Ensure cards look good on grid */
-     height: 100%;
-     display: flex;
-     flex-direction: column;
-     justify-content: space-between;
+    /* Ensure cards look good on grid */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   /* Stats row */
@@ -170,7 +190,7 @@ button {
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 700; /* Bold stages */
   text-transform: uppercase;
 }
 
@@ -185,6 +205,11 @@ button {
 .badge-proximos {
   background: var(--secondary);
   color: var(--white);
+}
+
+.filter-chip.atrasado-chip.active {
+  background: var(--delayed) !important;
+  box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3) !important;
 }
 
 /* Buttons */
@@ -278,6 +303,9 @@ button {
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
+  background: var(--white);
+  color: var(--text-dark);
+  transition: var(--transition);
 }
 
 .input-field:focus {

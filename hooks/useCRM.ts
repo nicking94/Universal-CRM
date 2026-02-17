@@ -42,8 +42,12 @@ export function useCRM() {
   };
 
   const getTotalSeguimientos = async () => {
-    // We could define a follow-up as a note or just count notes
     return await db.notas.count();
+  };
+
+  const deleteCliente = async (id: number) => {
+    await db.notas.where('clienteId').equals(id).delete();
+    return await db.clientes.delete(id);
   };
 
   return {
@@ -53,7 +57,8 @@ export function useCRM() {
     updateEtapa,
     updateSeguimiento,
     getAlerts,
-    getTotalSeguimientos
+    getTotalSeguimientos,
+    deleteCliente
   };
 }
 
@@ -80,6 +85,10 @@ export function useClient(id: number) {
     });
   };
 
+  const deleteNota = async (notaId: number) => {
+    return await db.notas.delete(notaId);
+  };
+
   const updateClientField = async (field: keyof Cliente, value: any) => {
     return await db.clientes.update(id, { [field]: value, actualizadoEn: Date.now() });
   };
@@ -88,6 +97,7 @@ export function useClient(id: number) {
     cliente,
     notas,
     addNota,
-    updateClientField
+    updateClientField,
+    deleteNota
   };
 }
