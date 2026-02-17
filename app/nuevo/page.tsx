@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCRM } from '../../hooks/useCRM';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { getTodayISO } from '../../utils/date';
 
 export default function NewClient() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function NewClient() {
     
     setLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayISO();
       await addCliente({
         nombre,
         rubro,

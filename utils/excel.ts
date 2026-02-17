@@ -19,7 +19,8 @@ export const exportData = async () => {
         XLSX.utils.book_append_sheet(wb, wsNotas, "Notas");
 
         // Save
-        const date = new Date().toISOString().split('T')[0];
+        const { getTodayISO } = await import('./date');
+        const date = getTodayISO();
         XLSX.writeFile(wb, `CRM_Backup_${date}.xlsx`);
     } catch (error) {
         console.error("Error exporting data:", error);

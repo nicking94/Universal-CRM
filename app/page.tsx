@@ -9,6 +9,7 @@ import SearchInput from '../components/SearchInput';
 import Filters from '../components/Filters';
 import ClientCard from '../components/ClientCard';
 import AlertBanner from '../components/AlertBanner';
+import { parseLocalYMD } from '../utils/date';
 
 export default function Home() {
   const { clientes, rubros, getAlerts, getTotalSeguimientos } = useCRM();
@@ -37,10 +38,13 @@ export default function Home() {
     if (filter === 'Hoy' && c.prioridadCalculada !== 'Hoy') return false;
     if (filter === 'Atrasados' && c.prioridadCalculada !== 'Atrasado') return false;
     if (filter === 'Semana') {
-        const next = new Date(c.proximoSeguimiento);
-        const soon = new Date();
+        const next = parseLocalYMD(c.proximoSeguimiento);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const soon = new Date(today);
         soon.setDate(soon.getDate() + 7);
-        if (next > soon || next < new Date(new Date().setHours(0,0,0,0))) return false;
+        
+        if (next > soon || next < today) return false;
     }
 
     // Rubro Filter
