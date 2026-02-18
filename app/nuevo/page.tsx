@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCRM } from '../../hooks/useCRM';
-import { ArrowLeft, User, Briefcase, Phone } from 'lucide-react';
+import { ArrowLeft, User, Phone, Store } from 'lucide-react';
 import Link from 'next/link';
 import { getTodayISO } from '../../utils/date';
+import { RUBROS_PREDEFINIDOS } from '../../constants/rubros';
 
 export default function NewClient() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function NewClient() {
   const [rubro, setRubro] = useState('');
   const [telefono, setTelefono] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Mix existing rubros with predefined ones
+  const allRubros = Array.from(new Set([...(rubros || []), ...RUBROS_PREDEFINIDOS]));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +75,7 @@ export default function NewClient() {
             <div className="input-group">
               <label className="input-label" style={{ fontWeight: 'bold' }}>Rubro</label>
               <div style={{ position: 'relative' }}>
-                <Briefcase size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
+                <Store size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
                 <input 
                   type="text" 
                   className="input-field" 
@@ -83,7 +87,7 @@ export default function NewClient() {
                 />
               </div>
               <datalist id="rubros-list">
-                {rubros?.map(r => (
+                {allRubros.sort().map(r => (
                   <option key={r} value={r} />
                 ))}
               </datalist>

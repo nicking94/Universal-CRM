@@ -20,6 +20,9 @@
   --won: #27ae60;
   --lost: #e74c3c;
   --delayed: #f39c12;
+  --border: #dddddd;
+  --card-tint-bg: 0.1;
+  --card-tint-border: 1;
 }
 
 [data-theme="dark"] {
@@ -32,6 +35,9 @@
   --white: #2c2c2c;
   --gray: #bdc3c7;
   --shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  --border: #444444;
+  --card-tint-bg: 0.2;
+  --card-tint-border: 0.8;
 }
 
 * {
@@ -271,7 +277,7 @@ button {
 /* Chat Experience */
 .note-item {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 
 .note-date {
@@ -300,7 +306,7 @@ button {
 .input-field {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
   background: var(--white);

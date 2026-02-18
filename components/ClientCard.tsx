@@ -1,6 +1,6 @@
 import { ClienteConPrioridad } from '../types';
 import { formatFecha } from '../utils/date';
-import { Layers, Calendar, ChevronRight, Phone } from 'lucide-react';
+import { Store, Calendar, ChevronRight, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { getStatusColor, stringToColor } from '../utils/colors';
 
@@ -30,7 +30,7 @@ export default function ClientCard({ cliente }: ClientCardProps) {
             <h3 style={{ fontSize: '1.1rem', marginBottom: '4px', fontWeight: 700 }}>{cliente.nombre || 'Sin nombre'}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <p style={{ fontSize: '0.8rem', color: 'var(--gray)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Layers size={14} /> {cliente.rubro}
+                <Store size={14} /> {cliente.rubro}
               </p>
               {cliente.telefono && (
                 <p style={{ fontSize: '0.8rem', color: 'var(--gray)', display: 'flex', alignItems: 'center', gap: '4px' }}>

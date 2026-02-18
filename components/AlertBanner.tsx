@@ -11,8 +11,8 @@ export default function AlertBanner({ today, delayed, onClose }: AlertBannerProp
 
   return (
     <div style={{ 
-      background: '#eaf6ff', 
-      border: '1px solid var(--tertiary)', 
+      background: 'var(--white)', 
+      border: '1px solid var(--primary)', 
       padding: '1rem', 
       borderRadius: '12px', 
       marginBottom: '1rem',

@@ -1,5 +1,5 @@
 'use client';
-import { Calendar, Layers, Briefcase } from 'lucide-react';
+import { Calendar, Layers, Store } from 'lucide-react';
 
 interface FiltersProps {
   filter: 'Todos' | 'Hoy' | 'Atrasados' | 'Semana';
@@ -62,7 +62,7 @@ export default function Filters({ filter, setFilter, rubroFilter, setRubroFilter
       {/* Rubro Filters */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--gray)', fontWeight: 500 }}>
-          <Briefcase size={14} /> <span>Rubro</span>
+          <Store size={14} /> <span>Rubro</span>
         </div>
         <div className="filters-container">
           <div 

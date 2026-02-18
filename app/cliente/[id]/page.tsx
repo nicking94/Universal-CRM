@@ -4,10 +4,11 @@ import { useClient, useCRM } from '../../../hooks/useCRM';
 import ClientOnly from '../../../components/ClientOnly';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar, Send, Save, AlertCircle, Trash2, Edit2, Phone, Briefcase, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Send, Save, AlertCircle, Trash2, Edit2, Phone, Store, User, MessageCircle, CheckCircle } from 'lucide-react';
 import { Etapa, Prioridad } from '../../../types';
-import { formatFechaHora } from '../../../utils/date';
+import { formatFechaHora, getTodayISO } from '../../../utils/date';
 import { getStatusColor } from '../../../utils/colors';
+import { RUBROS_PREDEFINIDOS } from '../../../constants/rubros';
 
 const ETAPAS: Etapa[] = [
   'Nuevo contacto',
@@ -33,6 +34,10 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
     rubro: '',
     telefono: ''
   });
+
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
+  const [completionNote, setCompletionNote] = useState('');
+  const [nextFollowUpDate, setNextFollowUpDate] = useState('');
 
   useEffect(() => {
     if (cliente) {
@@ -77,10 +82,37 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
     setIsEditing(false);
   };
 
+  const handleStageChange = async (newEtapa: Etapa) => {
+    if (newEtapa === cliente.etapa) return;
+    const originEtapa = cliente.etapa;
+    await updateClientField('etapa', newEtapa);
+    await addNota(`🔄 Etapa cambiada: ${originEtapa} ➔ ${newEtapa}`);
+  };
+
+  const handleCompleteFollowUp = async () => {
+    if (!completionNote.trim() || !nextFollowUpDate) {
+      alert('Por favor, ingresa una nota y la próxima fecha de seguimiento.');
+      return;
+    }
+    
+    await addNota(`✅ Seguimiento completado: ${completionNote}`);
+    await updateClientField('proximoSeguimiento', nextFollowUpDate);
+    setShowCompletionForm(false);
+    setCompletionNote('');
+  };
+
+  const openWhatsApp = () => {
+    if (!cliente.telefono) return;
+    const cleanPhone = cliente.telefono.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}`, '_blank');
+  };
+
   const statusColor = getStatusColor(cliente.etapa);
   const headerBg = statusColor || 'var(--primary)';
-  const badgeColor = cliente.prioridadCalculada === 'Hoy' ? 'var(--warning)' : 
-                     cliente.prioridadCalculada === 'Atrasado' ? 'var(--danger)' : 'var(--secondary)';
+  const isDelayed = cliente.prioridadCalculada === 'Atrasado';
+  const isToday = cliente.prioridadCalculada === 'Hoy';
+  const badgeColor = isToday ? 'var(--warning)' : 
+                     isDelayed ? 'var(--danger)' : 'var(--secondary)';
 
   return (
     <ClientOnly>
@@ -107,6 +139,11 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
             <p style={{ fontSize: '0.8rem', opacity: 0.9 }}>{cliente.rubro}</p>
           </div>
           <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+            {cliente.telefono && (
+              <button onClick={openWhatsApp} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+                <MessageCircle size={20} />
+              </button>
+            )}
             <button onClick={() => setIsEditing(!isEditing)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
                <Edit2 size={18} />
             </button>
@@ -148,14 +185,20 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
                 <div className="input-group">
                   <label className="input-label" style={{ fontWeight: 'bold' }}>Rubro</label>
                   <div style={{ position: 'relative' }}>
-                    <Briefcase size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
+                    <Store size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
                     <input 
                       type="text" 
                       className="input-field" 
-                      style={{ paddingLeft: '35px' }}
+                      style={{ paddingLeft: '35px', background: 'var(--white)', color: 'var(--text-dark)' }}
                       value={editValues.rubro}
                       onChange={(e) => setEditValues({...editValues, rubro: e.target.value})}
+                      list="rubros-list-edit"
                     />
+                    <datalist id="rubros-list-edit">
+                      {RUBROS_PREDEFINIDOS.map(r => (
+                        <option key={r} value={r} />
+                      ))}
+                    </datalist>
                   </div>
                 </div>
                 <div className="input-group">
@@ -165,7 +208,7 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
                     <input 
                       type="tel" 
                       className="input-field" 
-                      style={{ paddingLeft: '35px' }}
+                      style={{ paddingLeft: '35px', background: 'var(--white)', color: 'var(--text-dark)' }}
                       value={editValues.telefono}
                       onChange={(e) => setEditValues({...editValues, telefono: e.target.value})}
                     />
@@ -185,12 +228,12 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
               {ETAPAS.map(etapa => (
                 <button
                   key={etapa}
-                  onClick={() => updateClientField('etapa', etapa)}
+                  onClick={() => handleStageChange(etapa)}
                   className={`btn-stage ${cliente.etapa === etapa ? 'active' : ''}`}
                   style={{
                     padding: '8px 12px',
                     borderRadius: '20px',
-                    border: cliente.etapa === etapa ? '2px solid var(--primary)' : '1px solid #ddd',
+                    border: cliente.etapa === etapa ? '2px solid var(--primary)' : '1px solid var(--border)',
                     background: cliente.etapa === etapa ? 'var(--primary)' : 'var(--white)',
                     color: cliente.etapa === etapa ? 'white' : 'var(--text-dark)',
                     whiteSpace: 'nowrap',
@@ -204,6 +247,78 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
               ))}
             </div>
           </div>
+
+          {/* Follow-up Section */}
+          {(isToday || isDelayed) && !showCompletionForm && (
+            <div className="card" style={{ 
+              background: isDelayed ? 'rgba(231, 76, 60, var(--card-tint-bg))' : 'rgba(243, 156, 18, var(--card-tint-bg))',
+              borderColor: isDelayed ? 'rgba(231, 76, 60, var(--card-tint-border))' : 'rgba(243, 156, 18, var(--card-tint-border))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', color: isDelayed ? 'var(--danger)' : 'var(--warning)' }}>
+                  {isDelayed ? '⚠️ Seguimiento Atrasado' : '📅 Seguimiento para Hoy'}
+                </p>
+                <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>¿Ya realizaste el contacto?</p>
+              </div>
+              <button 
+                onClick={() => {
+                  setNextFollowUpDate(getTodayISO());
+                  setShowCompletionForm(true);
+                }}
+                className="btn" 
+                style={{ 
+                  background: isDelayed ? 'var(--danger)' : 'var(--warning)', 
+                  color: 'white', 
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem'
+                }}
+              >
+                <CheckCircle size={16} /> Completar
+              </button>
+            </div>
+          )}
+
+          {showCompletionForm && (
+            <div className="card" style={{ borderLeft: '5px solid var(--success)', animation: 'fadeIn 0.3s ease' }}>
+              <h3 style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 'bold', color: 'var(--success)' }}>Registrar Seguimiento</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="input-group">
+                  <label className="input-label" style={{ fontWeight: 'bold' }}>Nota del seguimiento</label>
+                  <textarea 
+                    className="input-field" 
+                    placeholder="¿Qué se habló? ¿Hubo algún acuerdo?"
+                    value={completionNote}
+                    onChange={(e) => setCompletionNote(e.target.value)}
+                    rows={3}
+                    style={{ background: 'var(--white)', color: 'var(--text-dark)', resize: 'none' }}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label" style={{ fontWeight: 'bold' }}>Próxima fecha de contacto</label>
+                  <input 
+                    type="date" 
+                    className="input-field" 
+                    value={nextFollowUpDate} 
+                    min={getTodayISO()}
+                    onChange={(e) => setNextFollowUpDate(e.target.value)}
+                    style={{ background: 'var(--white)', color: 'var(--text-dark)' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="btn btn-primary" style={{ flex: 1, background: 'var(--success)' }} onClick={handleCompleteFollowUp}>
+                    <Save size={18} /> Guardar
+                  </button>
+                  <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowCompletionForm(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Dates */}
           <div className="card">
