@@ -19,6 +19,14 @@ export default function ClientCard({ cliente }: ClientCardProps) {
   const isAnonymous = !cliente.nombre || cliente.nombre.toLowerCase().includes('cliente');
   const finalBorderColor = isAnonymous ? '#e67e22' : cardBorderColor;
 
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!cliente.telefono) return;
+    const cleanPhone = cliente.telefono.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}`, '_blank');
+  };
+
   return (
     <Link href={`/cliente/${cliente.id}`}>
       <div className="card" style={{ 
@@ -33,7 +41,18 @@ export default function ClientCard({ cliente }: ClientCardProps) {
                 <Store size={14} /> {cliente.rubro}
               </p>
               {cliente.telefono && (
-                <p style={{ fontSize: '0.8rem', color: 'var(--gray)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <p 
+                  onClick={handleWhatsAppClick}
+                  style={{ 
+                    fontSize: '0.8rem', 
+                    color: 'var(--primary)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  }}
+                >
                   <Phone size={14} /> {cliente.telefono}
                 </p>
               )}

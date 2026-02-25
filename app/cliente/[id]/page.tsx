@@ -23,7 +23,7 @@ const ETAPAS: Etapa[] = [
 export default function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const clientId = parseInt(id);
-  const { cliente, notas, addNota, updateClientField, deleteNota } = useClient(clientId);
+  const { cliente, notas, addNota, updateClientField, deleteNota, updateNota } = useClient(clientId);
   const { deleteCliente } = useCRM();
   const router = useRouter();
   
@@ -38,6 +38,8 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
   const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [completionNote, setCompletionNote] = useState('');
   const [nextFollowUpDate, setNextFollowUpDate] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [editingNoteContent, setEditingNoteContent] = useState('');
 
   useEffect(() => {
     if (cliente) {
@@ -99,6 +101,13 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
     await updateClientField('proximoSeguimiento', nextFollowUpDate);
     setShowCompletionForm(false);
     setCompletionNote('');
+  };
+
+  const handleUpdateNote = async (notaId: number) => {
+    if (!editingNoteContent.trim()) return;
+    await updateNota(notaId, editingNoteContent);
+    setEditingNoteId(null);
+    setEditingNoteContent('');
   };
 
   const openWhatsApp = () => {
@@ -164,6 +173,31 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
         </div>
 
         <div className="content">
+          {/* Contact Info Card (Quick Link) */}
+          {!isEditing && cliente.telefono && (
+            <div 
+              className="card" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px', 
+                cursor: 'pointer',
+                borderLeft: '5px solid #25D366', // WhatsApp Green
+                animation: 'fadeIn 0.3s ease'
+              }} 
+              onClick={openWhatsApp}
+            >
+              <div style={{ background: '#25D366', padding: '8px', borderRadius: '50%', color: 'white' }}>
+                <Phone size={20} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--gray)', fontWeight: 'bold', textTransform: 'uppercase' }}>WhatsApp</p>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text-dark)', fontWeight: 'bold' }}>{cliente.telefono}</p>
+              </div>
+              <MessageCircle size={20} color="#25D366" />
+            </div>
+          )}
+
           {/* Editing Area */}
           {isEditing && (
             <div className="card" style={{ animation: 'fadeIn 0.3s ease' }}>
@@ -249,7 +283,7 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
           </div>
 
           {/* Follow-up Section */}
-          {(isToday || isDelayed) && !showCompletionForm && (
+          {(isToday || isDelayed) && !showCompletionForm && cliente.etapa !== 'Ganado' && cliente.etapa !== 'Perdido' && (
             <div className="card" style={{ 
               background: isDelayed ? 'rgba(231, 76, 60, var(--card-tint-bg))' : 'rgba(243, 156, 18, var(--card-tint-bg))',
               borderColor: isDelayed ? 'rgba(231, 76, 60, var(--card-tint-border))' : 'rgba(243, 156, 18, var(--card-tint-border))',
@@ -333,21 +367,23 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
                   style={{ background: 'var(--white)', color: 'var(--text-dark)' }}
                 />
               </div>
-              <div>
-                <label className="input-label" style={{ fontWeight: 'bold' }}>Próximo Seguimiento</label>
-                <input 
-                  type="date" 
-                  className="input-field" 
-                  value={cliente.proximoSeguimiento} 
-                  onChange={(e) => updateClientField('proximoSeguimiento', e.target.value)}
-                  style={{ 
-                    background: 'var(--white)',
-                    color: 'var(--text-dark)',
-                    border: cliente.prioridadCalculada === 'Atrasado' ? '2px solid var(--danger)' : 
-                            cliente.prioridadCalculada === 'Hoy' ? '2px solid var(--warning)' : '1px solid #ddd'
-                  }}
-                />
-              </div>
+              {cliente.etapa !== 'Ganado' && cliente.etapa !== 'Perdido' && (
+                <div>
+                  <label className="input-label" style={{ fontWeight: 'bold' }}>Próximo Seguimiento</label>
+                  <input 
+                    type="date" 
+                    className="input-field" 
+                    value={cliente.proximoSeguimiento} 
+                    onChange={(e) => updateClientField('proximoSeguimiento', e.target.value)}
+                    style={{ 
+                      background: 'var(--white)',
+                      color: 'var(--text-dark)',
+                      border: cliente.prioridadCalculada === 'Atrasado' ? '2px solid var(--danger)' : 
+                              cliente.prioridadCalculada === 'Hoy' ? '2px solid var(--warning)' : '1px solid #ddd'
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -367,14 +403,53 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
                   animation: 'fadeIn 0.3s ease'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                     <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-                       {formatFechaHora(nota.fecha)}
-                     </span>
-                     <button onClick={() => handleDeleteNote(nota.id!)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer' }}>
-                       <Trash2 size={14} />
-                     </button>
-                  </div>
-                  <p style={{ fontSize: '0.95rem', lineHeight: '1.4', color: 'var(--text-dark)' }}>{nota.contenido}</p>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+                        {formatFechaHora(nota.fecha)}
+                      </span>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => {
+                            setEditingNoteId(nota.id!);
+                            setEditingNoteContent(nota.contenido);
+                          }} 
+                          style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer' }}
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => handleDeleteNote(nota.id!)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer' }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                   </div>
+                   {editingNoteId === nota.id ? (
+                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                       <textarea 
+                        className="input-field"
+                        value={editingNoteContent}
+                        onChange={(e) => setEditingNoteContent(e.target.value)}
+                        rows={3}
+                        style={{ background: 'var(--bg-light)', color: 'var(--text-dark)', resize: 'none', width: '100%' }}
+                       />
+                       <div style={{ display: 'flex', gap: '8px' }}>
+                         <button 
+                          className="btn btn-primary" 
+                          style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                          onClick={() => handleUpdateNote(nota.id!)}
+                         >
+                           Guardar
+                         </button>
+                         <button 
+                          className="btn btn-secondary" 
+                          style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                          onClick={() => setEditingNoteId(null)}
+                         >
+                           Cancelar
+                         </button>
+                       </div>
+                     </div>
+                   ) : (
+                     <p style={{ fontSize: '0.95rem', lineHeight: '1.4', color: 'var(--text-dark)' }}>{nota.contenido}</p>
+                   )}
                 </div>
               ))}
               {notas?.length === 0 && <p style={{ color: 'var(--gray)', textAlign: 'center', fontSize: '0.9rem' }}>No hay notas aún.</p>}

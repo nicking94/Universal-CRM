@@ -93,11 +93,16 @@ export function useClient(id: number) {
     return await db.clientes.update(id, { [field]: value, actualizadoEn: Date.now() });
   };
 
+  const updateNota = async (notaId: number, contenido: string) => {
+    return await db.notas.update(notaId, { contenido, fecha: Date.now() });
+  };
+
   return {
     cliente,
     notas,
     addNota,
     updateClientField,
-    deleteNota
+    deleteNota,
+    updateNota
   };
 }
