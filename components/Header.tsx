@@ -39,7 +39,7 @@ export default function Header() {
   const todayClients = clientes?.filter(c => c.prioridadCalculada === 'Hoy') || [];
 
   return (
-    <header className="header" style={{ padding: '1rem' }}>
+    <header className="header">
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <img src="/logo.png" alt="Logo" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
         <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Universal CRM</h1>

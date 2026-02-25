@@ -125,20 +125,28 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
 
   return (
     <ClientOnly>
-      <div style={{ background: 'var(--bg-light)', minHeight: '100vh', paddingBottom: '100px' }}>
+      <div style={{ 
+        background: 'var(--bg-light)', 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
         {/* Header */}
         <div style={{ 
           position: 'sticky', 
           top: 0, 
           background: headerBg, 
           color: 'white', 
-          padding: '1rem', 
+          padding: '1rem 1.5rem', 
           zIndex: 10,
           display: 'flex',
           alignItems: 'center',
           gap: '1rem',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          transition: 'background-color 0.3s ease'
+          transition: 'background-color 0.3s ease',
+          width: '100%'
         }}>
           <Link href="/">
             <ArrowLeft color="white" />
@@ -172,7 +180,7 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        <div className="content">
+        <div className="content" style={{ paddingBottom: '100px' }}>
           {/* Contact Info Card (Quick Link) */}
           {!isEditing && cliente.telefono && (
             <div 
@@ -256,24 +264,31 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
           )}
 
           {/* Stage Selector */}
-          <div className="card" style={{ overflowX: 'auto' }}>
-            <p className="input-label" style={{ fontWeight: 'bold' }}>Etapa actual</p>
-            <div style={{ display: 'flex', gap: '0.5rem', paddingBottom: '0.5rem' }}>
+          <div className="card">
+            <p className="input-label" style={{ fontWeight: 'bold', marginBottom: '12px' }}>Etapa actual</p>
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.6rem', 
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start'
+            }}>
               {ETAPAS.map(etapa => (
                 <button
                   key={etapa}
                   onClick={() => handleStageChange(etapa)}
                   className={`btn-stage ${cliente.etapa === etapa ? 'active' : ''}`}
                   style={{
-                    padding: '8px 12px',
-                    borderRadius: '20px',
+                    padding: '12px 24px',
+                    borderRadius: '30px',
                     border: cliente.etapa === etapa ? '2px solid var(--primary)' : '1px solid var(--border)',
                     background: cliente.etapa === etapa ? 'var(--primary)' : 'var(--white)',
                     color: cliente.etapa === etapa ? 'white' : 'var(--text-dark)',
                     whiteSpace: 'nowrap',
-                    fontSize: '0.85rem',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: cliente.etapa === etapa ? '0 5px 15px rgba(45, 120, 185, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
                   }}
                 >
                   {etapa}
@@ -466,10 +481,9 @@ export default function ClientDetail({ params }: { params: Promise<{ id: string 
           background: 'var(--white)', 
           padding: '1rem', 
           boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-          maxWidth: '500px',
-          margin: '0 auto',
+          width: '100%',
           display: 'flex',
-          gap: '0.5rem',
+          gap: '0.8rem',
           zIndex: 100
         }}>
           <input 

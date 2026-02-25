@@ -112,35 +112,35 @@ button {
 /* Desktop */
 @media (min-width: 768px) {
   .app-container {
-    max-width: 1600px;
+    max-width: 100%;
     background: var(--bg-light);
-    padding: 0 2rem 2rem 2rem;
+    padding: 0;
   }
 
   .header {
-    border-radius: 0 0 15px 15px;
-    margin-bottom: 2rem;
+    border-radius: 0;
+    margin-bottom: 0;
+    width: 100%;
   }
 
   .content {
+    padding: 1.5rem 2rem;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
-  /* Grid for cards */
   .client-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2.5rem;
+    padding: 0;
   }
 
   .card {
-    /* Ensure cards look good on grid */
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    margin-bottom: 0px;
   }
 
   /* Stats row */
@@ -158,15 +158,14 @@ button {
 .header {
   background: var(--primary);
   color: var(--text-light);
-  padding: 1.5rem 1rem;
+  padding: 1.2rem 2rem;
   position: sticky;
   top: 0;
   z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+  border-radius: 0;
 }
 
 .content {
